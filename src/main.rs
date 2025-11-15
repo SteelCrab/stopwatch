@@ -1,6 +1,6 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use std::io::{self, Result, Write, stdout};
+use std::io::{Result, Write, stdout};
 use std::process::Command;
 use std::time::{Duration, Instant};
 
@@ -97,30 +97,30 @@ impl Stopwatch {
                 }
             }
 
-            if event::poll(Duration::from_millis(10))? {
-                if let Event::Key(key_event) = event::read()? {
-                    if key_event.kind != KeyEventKind::Press {
-                        continue;
-                    }
+            if event::poll(Duration::from_millis(10))?
+                && let Event::Key(key_event) = event::read()?
+            {
+                if key_event.kind != KeyEventKind::Press {
+                    continue;
+                }
 
-                    match key_event.code {
-                        KeyCode::Enter => {
-                            println!();
-                            self.toggle();
-                        }
-                        KeyCode::Char('r') | KeyCode::Char('R') => {
-                            self.reset_counter();
-                            self.reset_time();
-                            self.state = State::Stopped;
-                            println!("\r\n🔄 리셋\r");
-                            stdout().flush()?;
-                        }
-                        KeyCode::Esc => {
-                            println!("\r\n🚪 종료\r");
-                            break;
-                        }
-                        _ => {}
+                match key_event.code {
+                    KeyCode::Enter => {
+                        println!();
+                        self.toggle();
                     }
+                    KeyCode::Char('r') | KeyCode::Char('R') => {
+                        self.reset_counter();
+                        self.reset_time();
+                        self.state = State::Stopped;
+                        println!("\r\n🔄 리셋\r");
+                        stdout().flush()?;
+                    }
+                    KeyCode::Esc => {
+                        println!("\r\n🚪 종료\r");
+                        break;
+                    }
+                    _ => {}
                 }
             }
         }
@@ -129,7 +129,7 @@ impl Stopwatch {
 }
 
 fn main() -> Result<()> {
-    enable_raw_mode().unwrap();
+    enable_raw_mode()?;
 
     let mut stopwatch = Stopwatch::new();
     let result = stopwatch.run();
